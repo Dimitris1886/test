@@ -1,17 +1,25 @@
-name: Test and Build Workflow
-on: workflow_dispatch
+name: Testing and Building Workflow
+on: push
 jobs:
-  test-job:
+  test_job:
     runs-on: ubuntu-latest
     steps:
-      - name: Run Tests
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
         run: |
-          echo "Testing 1 + 1 logic"
-          pytest -c "assert 1 + 1 == 2"
-  build-job:
-    runs-on: ubuntu-latest
-    needs: test-job
-    steps:
-      - name: Build Application if Tests Pass
-        run: echo "Building application after successful tests"
+          python -m pip install --upgrade pip
+          pip install pytest
+      - name: Run tests
+        run: pytest test_app.py
 
+  build_job:
+    runs-on: ubuntu-latest
+    needs: test_job
+    steps:
+      - name: Build Application
+        run: echo "Building the application..."
