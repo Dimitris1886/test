@@ -3,18 +3,16 @@ name: API Application Pipeline of Dimitris
 on:
   workflow_dispatch:
     inputs:
-      log_errors:   #log_errors parameter controls whether errors are logged during the pipeline
+      log_errors:  # log_errors parameter controls whether errors are logged during the pipeline
         description: 'Log errors if tests fail'
         required: true
         default: false
-				type: boolean   # type: boolean - helps GitHub Actions understand the input type, especially for validation or UI purposes.
-
+        type: boolean  # type boolean helps GitHub Actions understand the input type
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   FREE_CURRENCY_API_KEY: ${{ secrets.FREE_CURRENCY_API_KEY }}
-
 
 jobs:
   run-tests:
