@@ -1,0 +1,48 @@
+name: API Application Pipeline of Dimitris
+
+on:
+  workflow_dispatch:
+    inputs:
+      log_errors:   #log_errors parameter controls whether errors are logged during the pipeline
+        description: 'Log errors if tests fail'
+        required: true
+        default: false
+				type: boolean   # type: boolean - helps GitHub Actions understand the input type, especially for validation or UI purposes.
+
+
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  FREE_CURRENCY_API_KEY: ${{ secrets.FREE_CURRENCY_API_KEY }}
+
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10.4'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        id: run_tests
+        run: pytest tests/ > pytest-results.log
+        continue-on-error: true
+
+      - name: Upload error logs if tests failed and logging is enabled
+        if: ${{ steps.run_tests.outcome == 'failure' && github.event.inputs.log_errors == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-log
+          path: pytest-results.log
+
+      - name: Fail job if tests failed
+        if: ${{ steps.run_tests.outcome == 'failure' }}
+        run: exit 1
